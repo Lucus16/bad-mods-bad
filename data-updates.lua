@@ -1,3 +1,12 @@
+local scales = {
+        ["assembling-machine-2"] = 2,
+        ["assembling-machine-3"] = 4,
+        ["chemical-plant"] = 2,
+        ["electric-furnace"] = 2,
+        ["oil-refinery"] = 2,
+        ["pumpjack"] = 2,
+}
+
 data.raw["recipe"]["beacon"] = nil
 data.raw["technology"]["effect-transmission"] = nil
 
@@ -30,6 +39,9 @@ local function scalePower(powerUsageString, factor)
 end
 
 local function scaleEntity(entity, factor)
+        if not entity then
+                return
+        end
         if entity.energy_usage then
                 entity.energy_usage = scalePower(entity.energy_usage, factor)
         end
@@ -43,18 +55,30 @@ local function scaleEntity(entity, factor)
 end
 
 local function scaleRecipe(recipe, factor)
-        recipe.energy_required = (recipe.energy_required or 0.5) * factor
-        for _, ingredient in pairs(recipe.ingredients) do
-                ingredient[#ingredient] = ingredient[#ingredient] * factor
+        if recipe.normal and recipe.expensive then
+                scaleRecipe(recipe.normal, factor)
+                scaleRecipe(recipe.expensive, factor)
+        else
+                recipe.energy_required = (recipe.energy_required or 0.5) * factor
+                for _, ingredient in pairs(recipe.ingredients) do
+                        local name = ingredient.name or ingredient[1]
+                        local adjusted_factor = math.floor(factor / (scales[name] or 1))
+                        if ingredient.amount then
+                                ingredient.amount = ingredient.amount * adjusted_factor
+                        else
+                                ingredient[2] = ingredient[2] * adjusted_factor
+                        end
+                end
         end
 end
 
-scaleEntity(data.raw["mining-drill"]["pumpjack"], 2)
-scaleRecipe(data.raw["recipe"]["pumpjack"], 2)
+local enableBuildingScaling = settings.startup["bad-mods-bad-enable-building-scaling"].value
 
-scaleEntity(data.raw["assembling-machine"]["assembling-machine-2"], 2)
-scaleRecipe(data.raw["recipe"]["assembling-machine-2"].normal, 2)
-scaleRecipe(data.raw["recipe"]["assembling-machine-2"].expensive, 2)
-
-scaleEntity(data.raw["assembling-machine"]["assembling-machine-3"], 4)
-scaleRecipe(data.raw["recipe"]["assembling-machine-3"], 2)
+if enableBuildingScaling then
+        for name, factor in pairs(scales) do
+                scaleRecipe(data.raw["recipe"][name], factor)
+                scaleEntity(data.raw["assembling-machine"][name], factor)
+                scaleEntity(data.raw["furnace"][name], factor)
+                scaleEntity(data.raw["mining-drill"][name], factor)
+        end
+end
