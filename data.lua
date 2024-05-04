@@ -50,8 +50,7 @@ local function scaleRecipe(recipe, factor)
 end
 
 scaleEntity(data.raw["mining-drill"]["pumpjack"], 2)
-scaleRecipe(data.raw["recipe"]["pumpjack"].normal, 2)
-scaleRecipe(data.raw["recipe"]["pumpjack"].expensive, 2)
+scaleRecipe(data.raw["recipe"]["pumpjack"], 2)
 
 scaleEntity(data.raw["assembling-machine"]["assembling-machine-2"], 2)
 scaleRecipe(data.raw["recipe"]["assembling-machine-2"].normal, 2)
