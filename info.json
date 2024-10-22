@@ -1,9 +1,9 @@
 {
   "name": "bad-mods-bad",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "Bad Mods Bad",
   "author": "Lucus",
-  "factorio_version": "1.1",
-  "dependencies": ["base >= 1.1"],
+  "factorio_version": "2.0",
+  "dependencies": ["base >= 2.0"],
   "description": "This mod disables all beacons and modules. It also optionally scales the cost, power use and speed of some buildings that used to have module slots."
 }
